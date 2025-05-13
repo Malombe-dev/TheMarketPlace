@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import { Container, Row, Col, Card, Spinner, Button, Modal } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { useAuth } from "../context/AuthContext";
+
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -11,6 +13,8 @@ const ProductDetails = () => {
   const [loading, setLoading] = useState(true);
   const [modalShow, setModalShow] = useState(false);
   const [selectedImage, setSelectedImage] = useState("");
+  const { isAuthenticated } = useAuth();
+
 
   useEffect(() => {
     axios
@@ -72,26 +76,35 @@ const ProductDetails = () => {
         <Col md={4}>
           <h2>{product.product_name}</h2>
           <p>{product.description}</p>
+          <p>{product.notes}</p>
           <h4>Price: KES {product.price}</h4>
           <p><strong>Location:</strong> {product.location}</p>
           <p><strong>Age of Item:</strong> {product.age} Years</p>
 
          {/* Seller Information */}
           <hr />
-          <h5>Seller Information</h5>
-          <div className="d-flex align-items-center mb-2">
-            <img
-              src={product.profile_photo}
-              alt={product.posted_by}
-              className="rounded-circle me-2"
-              style={{ width: "50px", height: "50px", objectFit: "cover" }}
-            />
-            <div>
-              <p className="m-0"><strong>{product.posted_by}</strong></p>
-              <p className="m-0">📞 {product.contact_phone}</p>
-              <p className="m-0">✉️ {product.contact_email}</p>
-            </div>
-          </div>
+         
+            <h5>Seller Information</h5>
+            {isAuthenticated ? (
+              <div className="d-flex align-items-center mb-2">
+                <img
+                  src={product.profile_photo}
+                  alt={product.posted_by}
+                  className="rounded-circle me-2"
+                  style={{ width: "50px", height: "50px", objectFit: "cover" }}
+                />
+                <div>
+                  <p className="m-0"><strong>{product.posted_by}</strong></p>
+                  <p className="m-0">📞 {product.contact_phone}</p>
+                  <p className="m-0">✉️ {product.contact_email}</p>
+                </div>
+              </div>
+            ) : (
+              <p className="text-muted">
+                Please <a href="/login">log in</a> to see seller information.
+              </p>
+            )}
+
         </Col>
       </Row>
 

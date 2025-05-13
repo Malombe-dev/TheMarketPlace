@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 
+
 const Navbar = () => {
   const { isAuthenticated, logout } = useAuth();
 

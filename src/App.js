@@ -11,6 +11,7 @@ import ProductDetails from "./pages/ProductDetails";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import { AuthProvider } from "./context/AuthContext";
+
 import PrivateRoute from "./context/PrivateRoute";
 // inside your main index.js or App.js (before any API requests)
 
