@@ -38,6 +38,9 @@ const BrowseProducts = () => {
       .get("https://vmalombe.pythonanywhere.com/categories")
       .then((res) => {
         setCategories(["All", ...res.data]);
+        console.log("Selected:", selectedCategory);
+        products.forEach(p => console.log("Product:", p.category));
+
       })
       .catch((err) => {
         console.error("Error fetching categories:", err);
@@ -47,26 +50,44 @@ const BrowseProducts = () => {
   // Handle category filter
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);
-
+    console.log("Selected:", category); // ✅ Confirm selected
+  
     const filtered = category === "All"
       ? products
-      : products.filter((product) => product.category === category);
-
+      : products.filter((product) => {
+          const match = product.category?.trim().toLowerCase() === category.trim().toLowerCase();
+          if (!match) {
+            console.log(
+              `❌ No match: product.category = "${product.category}" vs selected = "${category}"`
+            );
+          } else {
+            console.log(
+              `✅ Match: product.category = "${product.category}"`
+            );
+          }
+          return match;
+        });
+  
+    console.log("Filtered products:", filtered);
     setDisplayedProducts(filtered);
   };
+  
 
   // Handle search
   const handleSearch = () => {
     const filtered = products.filter((product) =>
       product.product_name.toLowerCase().includes(searchText.toLowerCase())
     );
-
+  
     const categoryFiltered = selectedCategory === "All"
       ? filtered
-      : filtered.filter((product) => product.category === selectedCategory);
-
+      : filtered.filter((product) =>
+          product.category?.trim().toLowerCase() === selectedCategory.trim().toLowerCase()
+        );
+  
     setDisplayedProducts(categoryFiltered);
   };
+  
 
   if (loading)
     return <Spinner animation="border" className="d-block mx-auto mt-5" />;
