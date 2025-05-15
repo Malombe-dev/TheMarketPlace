@@ -11,6 +11,7 @@ import ProductDetails from "./pages/ProductDetails";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import { AuthProvider } from "./context/AuthContext";
+import MessageThread from "./components/MessagesPage";
 
 import PrivateRoute from "./context/PrivateRoute";
 // inside your main index.js or App.js (before any API requests)
@@ -30,6 +31,8 @@ function App() {
           <Route path="/browse-products" element={<BrowseProducts />} />
           <Route path="/browse-skills" element={<BrowseSkills />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/messages" element={<MessageThread />} />
+
           <Route path="/signup" element={<Signup />} />
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/upload-product" element={<PrivateRoute><UploadProduct /></PrivateRoute>} />

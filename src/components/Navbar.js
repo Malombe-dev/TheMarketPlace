@@ -1,10 +1,25 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
-
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { FaEnvelope } from "react-icons/fa"; // Install if not already: npm install react-icons
 
 const Navbar = () => {
   const { isAuthenticated, logout } = useAuth();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      axios.get("https://vmalombe.pythonanywhere.com/messages/unread-count")
+        .then(res => {
+          setUnreadCount(res.data.unread_count || 0);
+        })
+        .catch(err => {
+          console.error("Failed to fetch unread messages", err);
+        });
+    }
+  }, [isAuthenticated]);
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
@@ -32,8 +47,24 @@ const Navbar = () => {
                 <li className="nav-item"><Link to="/upload-product" className="nav-link">Upload Product</Link></li>
                 <li className="nav-item"><Link to="/upload-skill" className="nav-link">Upload Skill</Link></li>
                 <li className="nav-item"><Link to="/profile" className="nav-link">Profile</Link></li>
+
+                {/* Message Icon */}
+                <li className="nav-item position-relative">
+                  <Link to="/messages" className="nav-link">
+                    <FaEnvelope size={20} />
+                    {unreadCount > 0 && (
+                      <span
+                        className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                        style={{ fontSize: "0.6rem" }}
+                      >
+                        {unreadCount}
+                      </span>
+                    )}
+                  </Link>
+                </li>
+
                 <li className="nav-item">
-                  <button className="btn btn-danger" onClick={logout}>Logout</button>
+                  <button className="btn btn-danger ms-2" onClick={logout}>Logout</button>
                 </li>
               </>
             )}
