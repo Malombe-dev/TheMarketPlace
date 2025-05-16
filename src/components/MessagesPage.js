@@ -8,6 +8,7 @@ import {
   Modal,
   Button,
   Form,
+  Badge,
 } from "react-bootstrap";
 import { io } from "socket.io-client";
 
@@ -22,6 +23,8 @@ const MessagesPage = () => {
   const [conversationHistory, setConversationHistory] = useState([]);
   const [replyText, setReplyText] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [modalLoading, setModalLoading] = useState(false);
+  const [sending, setSending] = useState(false);
 
   const socketRef = useRef();
 
@@ -61,49 +64,51 @@ const MessagesPage = () => {
   };
 
   const fetchConversation = async (otherUserId) => {
+    setModalLoading(true);
     try {
       const response = await axios.get(
         `https://vmalombe.pythonanywhere.com/messages/conversation/${userId}/${otherUserId}`
       );
-  
+
       const messages = response.data.messages;
       setConversationHistory(messages);
-  
-      // Mark unread messages as read
+
       const unreadMessages = messages.filter(
         (msg) => msg.receiver_id === userId && msg.is_read === 0
       );
-  
+
       unreadMessages.forEach((msg) => {
         axios
           .post(
             `https://vmalombe.pythonanywhere.com/messages/mark-read/${msg.id}`,
-            { user_id: userId } // pass user_id in POST body to fix KeyError
+            { user_id: userId }
           )
-          .catch((err) => {
-            console.error("Failed to mark message as read", err);
-          });
+          .catch((err) =>
+            console.error("Failed to mark message as read", err)
+          );
       });
     } catch (error) {
       console.error("Failed to fetch conversation:", error);
       setConversationHistory([]);
+    } finally {
+      setModalLoading(false);
     }
   };
-  
-  
+
   const handleOpenConversation = async (otherUserId, otherUserName) => {
     setSelectedUser({
       id: otherUserId,
       name: otherUserName || `User ${otherUserId}`,
     });
     setReplyText("");
-    await fetchConversation(otherUserId);
     setShowModal(true);
+    await fetchConversation(otherUserId);
   };
 
   const sendReply = async () => {
     if (!replyText.trim()) return;
 
+    setSending(true);
     try {
       await axios.post("https://vmalombe.pythonanywhere.com/messages/send", {
         sender_id: userId,
@@ -114,10 +119,12 @@ const MessagesPage = () => {
       setSuccessMessage("Message sent successfully!");
       await fetchConversation(selectedUser.id);
 
-      setTimeout(() => setSuccessMessage(""), 3000); // Auto-clear message
+      setTimeout(() => setSuccessMessage(""), 3000);
     } catch (error) {
       console.error("Failed to send reply:", error);
       alert("Failed to send reply");
+    } finally {
+      setSending(false);
     }
   };
 
@@ -153,12 +160,15 @@ const MessagesPage = () => {
           const otherUserName = isSender
             ? msg.receiver_name
             : msg.sender_name;
+          const hasUnread =
+            msg.receiver_id === userId && msg.is_read === 0;
 
           return (
             <Card key={msg.id} className="mb-3 p-3">
               <div>
                 <strong>Conversation with:</strong>{" "}
-                {otherUserName || `User ${otherUserId}`}
+                {otherUserName || `User ${otherUserId}`}{" "}
+                {hasUnread && <Badge bg="danger">New</Badge>}
                 <p className="mb-1">{msg.message_text}</p>
                 <small className="text-muted">
                   {new Date(msg.created_at).toLocaleString()}
@@ -180,7 +190,6 @@ const MessagesPage = () => {
         })
       )}
 
-      {/* Modal for full conversation */}
       <Modal show={showModal} onHide={() => setShowModal(false)} scrollable>
         <Modal.Header closeButton>
           <Modal.Title>
@@ -188,65 +197,83 @@ const MessagesPage = () => {
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <div style={{ maxHeight: "300px", overflowY: "auto" }}>
-            {conversationHistory.length === 0 ? (
-              <p>No messages yet.</p>
-            ) : (
-              conversationHistory.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`p-2 rounded mb-2 ${
-                    msg.sender_id === userId
-                      ? "bg-light text-end"
-                      : "bg-secondary text-white"
-                  }`}
-                >
-                  <div>
-                    <strong>{msg.sender_name}:</strong>
-                  </div>
-                  <div>{msg.message_text}</div>
-                  <small className="text-muted d-block">
-                    {new Date(msg.created_at).toLocaleString()}
-                  </small>
-                  {msg.sender_id === userId && (
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      className="mt-1"
-                      onClick={() => handleDelete(msg.id)}
-                    >
-                      Delete
-                    </Button>
-                  )}
-                </div>
-              ))
-            )}
-          </div>
-
-          {/* ✅ Success Message Alert */}
-          {successMessage && (
-            <div className="alert alert-success mt-3 py-2 px-3">
-              {successMessage}
+          {modalLoading ? (
+            <div className="text-center my-4">
+              <Spinner animation="border" />
             </div>
-          )}
+          ) : (
+            <>
+              <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+                {conversationHistory.length === 0 ? (
+                  <p>No messages yet.</p>
+                ) : (
+                  conversationHistory.map((msg) => (
+                    <div
+                      key={msg.id}
+                      className={`p-2 rounded mb-2 ${
+                        msg.sender_id === userId
+                          ? "bg-light text-end"
+                          : "bg-secondary text-white"
+                      }`}
+                    >
+                      <div>
+                        <strong>{msg.sender_name}:</strong>
+                      </div>
+                      <div>{msg.message_text}</div>
+                      <small className="text-muted d-block">
+                        {new Date(msg.created_at).toLocaleString()}
+                      </small>
+                      {msg.sender_id === userId && (
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          className="mt-1"
+                          onClick={() => handleDelete(msg.id)}
+                        >
+                          Delete
+                        </Button>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
 
-          <Form.Group controlId="replyText" className="mt-3">
-            <Form.Label>Your Reply</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={3}
-              value={replyText}
-              onChange={(e) => setReplyText(e.target.value)}
-              placeholder="Type your reply..."
-            />
-          </Form.Group>
+              {successMessage && (
+                <div className="alert alert-success mt-3 py-2 px-3">
+                  {successMessage}
+                </div>
+              )}
+
+              <Form.Group controlId="replyText" className="mt-3">
+                <Form.Label>Your Reply</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  placeholder="Type your reply..."
+                />
+              </Form.Group>
+            </>
+          )}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowModal(false)}>
             Close
           </Button>
-          <Button variant="primary" onClick={sendReply}>
-            Send
+          <Button variant="primary" onClick={sendReply} disabled={sending}>
+            {sending ? (
+              <>
+                <Spinner
+                  animation="border"
+                  size="sm"
+                  className="me-2"
+                />
+                Sending...
+              </>
+            ) : (
+              "Send"
+            )}
           </Button>
         </Modal.Footer>
       </Modal>
