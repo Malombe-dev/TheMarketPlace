@@ -3,23 +3,35 @@ import { useAuth } from "../context/AuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { FaEnvelope } from "react-icons/fa"; // Install if not already: npm install react-icons
+import { FaEnvelope } from "react-icons/fa";
 
 const Navbar = () => {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
 
+  // Get userId from context or localStorage
+  const userId = user?.id || JSON.parse(localStorage.getItem("user"))?.id;
+
   useEffect(() => {
-    if (isAuthenticated) {
-      axios.get("https://vmalombe.pythonanywhere.com/messages/unread-count")
-        .then(res => {
+    const fetchUnreadCount = async () => {
+      if (isAuthenticated && userId) {
+        try {
+          const res = await axios.get(
+            `https://vmalombe.pythonanywhere.com/message/unread-count/${userId}`
+          );
           setUnreadCount(res.data.unread_count || 0);
-        })
-        .catch(err => {
+        } catch (err) {
           console.error("Failed to fetch unread messages", err);
-        });
-    }
-  }, [isAuthenticated]);
+        }
+      }
+    };
+
+    fetchUnreadCount();
+
+    // Optional: Poll for new messages every 60 seconds
+    const interval = setInterval(fetchUnreadCount, 60000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated, userId]);
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
@@ -36,19 +48,20 @@ const Navbar = () => {
         >
           <span className="navbar-toggler-icon"></span>
         </button>
+
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav ms-auto">
             <li className="nav-item"><Link to="/" className="nav-link">Home</Link></li>
             <li className="nav-item"><Link to="/browse-products" className="nav-link">Products</Link></li>
             <li className="nav-item"><Link to="/browse-skills" className="nav-link">Skills</Link></li>
 
-            {isAuthenticated && (
+            {isAuthenticated ? (
               <>
                 <li className="nav-item"><Link to="/upload-product" className="nav-link">Upload Product</Link></li>
                 <li className="nav-item"><Link to="/upload-skill" className="nav-link">Upload Skill</Link></li>
                 <li className="nav-item"><Link to="/profile" className="nav-link">Profile</Link></li>
 
-                {/* Message Icon */}
+                {/* Messages */}
                 <li className="nav-item position-relative">
                   <Link to="/messages" className="nav-link">
                     <FaEnvelope size={20} />
@@ -67,9 +80,7 @@ const Navbar = () => {
                   <button className="btn btn-danger ms-2" onClick={logout}>Logout</button>
                 </li>
               </>
-            )}
-
-            {!isAuthenticated && (
+            ) : (
               <>
                 <li className="nav-item"><Link to="/login" className="nav-link">Login</Link></li>
                 <li className="nav-item"><Link to="/signup" className="nav-link">Sign Up</Link></li>
