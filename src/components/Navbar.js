@@ -3,13 +3,12 @@ import { useAuth } from "../context/AuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { FaEnvelope } from "react-icons/fa";
+import { FaEnvelope, FaBoxOpen, FaPlusCircle, FaUser, FaLightbulb, FaTools, FaSignInAlt, FaUserPlus, FaSignOutAlt } from "react-icons/fa";
 
 const Navbar = () => {
   const { isAuthenticated, logout, user } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
 
-  // Get userId from context or localStorage
   const userId = user?.id || JSON.parse(localStorage.getItem("user"))?.id;
 
   useEffect(() => {
@@ -27,66 +26,85 @@ const Navbar = () => {
     };
 
     fetchUnreadCount();
-
-    // Optional: Poll for new messages every 60 seconds
     const interval = setInterval(fetchUnreadCount, 60000);
     return () => clearInterval(interval);
   }, [isAuthenticated, userId]);
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
-      <div className="container">
-        <Link className="navbar-brand fw-bold" to="/">Marketplace</Link>
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
+    <nav className="navbar navbar-expand bg-primary px-2">
+      <div className="container-fluid justify-content-between">
+        <Link className="navbar-brand fw-bold text-white" to="/">
+          Marketplace
+        </Link>
 
-        <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav ms-auto">
-            <li className="nav-item"><Link to="/" className="nav-link">Home</Link></li>
-            <li className="nav-item"><Link to="/browse-products" className="nav-link">Products</Link></li>
-            <li className="nav-item"><Link to="/browse-skills" className="nav-link">Skills</Link></li>
+        <div className="d-flex flex-wrap gap-2">
+          {/* Always visible links as icons */}
+          <Link to="/" className="nav-link text-white px-2 d-flex flex-column align-items-center">
+            <FaBoxOpen size={20} />
+            <span className="d-none d-sm-inline">Home</span>
+          </Link>
 
-            {isAuthenticated ? (
-              <>
-                <li className="nav-item"><Link to="/upload-product" className="nav-link">Upload Product</Link></li>
-                <li className="nav-item"><Link to="/upload-skill" className="nav-link">Upload Skill</Link></li>
-                <li className="nav-item"><Link to="/profile" className="nav-link">Profile</Link></li>
+          <Link to="/browse-products" className="nav-link text-white px-2 d-flex flex-column align-items-center">
+            <FaBoxOpen size={20} />
+            <span className="d-none d-sm-inline">Products</span>
+          </Link>
 
-                {/* Messages */}
-                <li className="nav-item position-relative">
-                  <Link to="/messages" className="nav-link">
-                    <FaEnvelope size={20} />
-                    {unreadCount > 0 && (
-                      <span
-                        className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                        style={{ fontSize: "0.6rem" }}
-                      >
-                        {unreadCount}
-                      </span>
-                    )}
-                  </Link>
-                </li>
+          <Link to="/browse-skills" className="nav-link text-white px-2 d-flex flex-column align-items-center">
+            <FaTools size={20} />
+            <span className="d-none d-sm-inline">Skills</span>
+          </Link>
 
-                <li className="nav-item">
-                  <button className="btn btn-danger ms-2" onClick={logout}>Logout</button>
-                </li>
-              </>
-            ) : (
-              <>
-                <li className="nav-item"><Link to="/login" className="nav-link">Login</Link></li>
-                <li className="nav-item"><Link to="/signup" className="nav-link">Sign Up</Link></li>
-              </>
-            )}
-          </ul>
+          {isAuthenticated ? (
+            <>
+              <Link to="/upload-product" className="nav-link text-white px-2 d-flex flex-column align-items-center">
+                <FaPlusCircle size={20} />
+                <span className="d-none d-sm-inline">Upload Product</span>
+              </Link>
+
+              <Link to="/upload-skill" className="nav-link text-white px-2 d-flex flex-column align-items-center">
+                <FaLightbulb size={20} />
+                <span className="d-none d-sm-inline">Upload Skill</span>
+              </Link>
+
+              <Link to="/profile" className="nav-link text-white px-2 d-flex flex-column align-items-center">
+                <FaUser size={20} />
+                <span className="d-none d-sm-inline">Profile</span>
+              </Link>
+
+              <Link to="/messages" className="nav-link text-white px-2 d-flex flex-column align-items-center position-relative">
+                <FaEnvelope size={20} />
+                <span className="d-none d-sm-inline">Messages</span>
+                {unreadCount > 0 && (
+                  <span
+                    className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                    style={{ fontSize: "0.6rem" }}
+                  >
+                    {unreadCount}
+                  </span>
+                )}
+              </Link>
+
+              <button
+                className="btn btn-sm btn-danger d-flex align-items-center px-2"
+                onClick={logout}
+              >
+                <FaSignOutAlt className="me-1" />
+                <span className="d-none d-sm-inline">Logout</span>
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="nav-link text-white px-2 d-flex flex-column align-items-center">
+                <FaSignInAlt size={20} />
+                <span className="d-none d-sm-inline">Login</span>
+              </Link>
+
+              <Link to="/signup" className="nav-link text-white px-2 d-flex flex-column align-items-center">
+                <FaUserPlus size={20} />
+                <span className="d-none d-sm-inline">Sign Up</span>
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </nav>
