@@ -135,8 +135,8 @@ const BrowseProducts = () => {
           <p className="text-center">No products found</p>
         ) : (
           displayedProducts.map((product) => (
-            <div key={product.id} className="col-md-4 mb-4">
-              <Card className="shadow-lg border-0 rounded">
+            <div key={product.id} className="col-12 col-sm-6 col-md-4 mb-4 d-flex justify-content-center">
+              <Card className="shadow-lg border-0 rounded w-100" style={{ maxWidth: "100%", minHeight: "100%" }}>
                 <Carousel>
                   {[product.front_photo, product.back_photo, product.side_photo_1, product.side_photo_2].map(
                     (photo, index) =>
@@ -169,6 +169,7 @@ const BrowseProducts = () => {
                 </Card.Body>
               </Card>
             </div>
+
           ))
         )}
       </div>
