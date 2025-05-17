@@ -131,47 +131,48 @@ const BrowseProducts = () => {
 
       {/* Product Grid */}
       <div className="row">
-        {displayedProducts.length === 0 ? (
-          <p className="text-center">No products found</p>
-        ) : (
-          displayedProducts.map((product) => (
-            <div key={product.id} className="col-12 col-sm-6 col-md-4 mb-4 d-flex justify-content-center">
-              <Card className="shadow-lg border-0 rounded w-100" style={{ maxWidth: "100%", minHeight: "100%" }}>
-                <Carousel>
-                  {[product.front_photo, product.back_photo, product.side_photo_1, product.side_photo_2].map(
-                    (photo, index) =>
-                      photo && (
-                        <Carousel.Item key={index}>
-                          <img
-                            src={`${photo}?timestamp=${new Date().getTime()}`}
-                            alt={product.product_name}
-                            className="d-block w-100"
-                            style={{ height: "250px", objectFit: "cover", borderRadius: "10px" }}
-                          />
-                        </Carousel.Item>
-                      )
-                  )}
-                </Carousel>
+      {displayedProducts.length === 0 ? (
+  <p className="text-center">No products found</p>
+) : (
+  displayedProducts.map((product) => (
+    <div key={product.id} className="col-12 col-sm-6 col-md-4 col-lg-3 mb-4 d-flex justify-content-center">
+      <Card className="shadow-sm border-0 rounded" style={{ width: "100%", maxWidth: "260px", minHeight: "360px" }}>
+        <Carousel>
+          {[product.front_photo, product.back_photo, product.side_photo_1, product.side_photo_2].map(
+            (photo, index) =>
+              photo && (
+                <Carousel.Item key={index}>
+                  <img
+                    src={`${photo}?timestamp=${new Date().getTime()}`}
+                    alt={product.product_name}
+                    className="d-block w-100"
+                    style={{ height: "180px", objectFit: "cover", borderRadius: "10px" }}
+                  />
+                </Carousel.Item>
+              )
+          )}
+        </Carousel>
 
-                <Card.Body className="text-center">
-                  <h5 className="mb-2">{product.product_name}</h5>
-                  <h6 className="text-muted mb-1">{product.category}</h6>
-                  <p className="mb-1">{product.location}</p>
-                  <p className="text-muted mb-1">
-                    <strong>Posted by:</strong> {product.posted_by || "Unknown"}
-                  </p>
-                  <Button
-                    variant="primary"
-                    onClick={() => navigate(`/product/${product.id}`)}
-                  >
-                    View Details
-                  </Button>
-                </Card.Body>
-              </Card>
-            </div>
+        <Card.Body className="text-center p-2">
+          <h6 className="mb-1 fw-bold">{product.product_name}</h6>
+          <p className="text-muted mb-0" style={{ fontSize: "0.85rem" }}>{product.category}</p>
+          <p className="mb-1" style={{ fontSize: "0.85rem" }}>{product.location}</p>
+          <p className="text-muted mb-2" style={{ fontSize: "0.75rem" }}>
+            <strong>By:</strong> {product.posted_by || "Unknown"}
+          </p>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => navigate(`/product/${product.id}`)}
+          >
+            View
+          </Button>
+        </Card.Body>
+      </Card>
+    </div>
+  ))
+)}
 
-          ))
-        )}
       </div>
     </div>
   );
