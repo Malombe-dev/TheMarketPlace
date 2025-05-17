@@ -33,9 +33,17 @@ const Navbar = () => {
   return (
     <nav className="navbar navbar-expand bg-primary px-2">
       <div className="container-fluid justify-content-between">
-        <Link className="navbar-brand fw-bold text-white" to="/">
-          Marketplace
-        </Link>
+                <Link className="navbar-brand d-flex align-items-center text-white fw-bold fs-4" to="/">
+            <img
+              src="/images/logo.jpg" // Replace with your logo path or URL
+              alt="Logo"
+              width="30"
+              height="30"
+              className="me-2"
+            />
+            Marketplace
+          </Link>
+
 
         <div className="d-flex flex-wrap gap-2">
           {/* Always visible links as icons */}

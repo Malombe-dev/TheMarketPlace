@@ -12,24 +12,24 @@ const Signup = () => {
     confirmPassword: "",
   });
 
-  const [errorMessage, setErrorMessage] = useState(""); // State for error messages
-  const navigate = useNavigate(); // Ensure this is defined
+  const [errorMessage, setErrorMessage] = useState("");
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setUser({ ...user, [e.target.name]: e.target.value });
-    setErrorMessage(""); // Clear error when user starts typing
+    setErrorMessage("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (user.password !== user.confirmPassword) {
-      setErrorMessage("Passwords do not match!"); // Show error message
+      setErrorMessage("Passwords do not match!");
       return;
     }
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/signup", {
+      const response = await fetch("https://vmalombe.pythonanywhere.com/signup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -48,9 +48,10 @@ const Signup = () => {
 
       if (response.ok) {
         alert("Account created successfully!");
-        navigate("/login"); // Redirect to login
+        navigate("/login");
       } else {
-        setErrorMessage(data.message || "Signup failed. Please try again.");
+        // backend might send { error: "..."} or { message: "..." }
+        setErrorMessage(data.error || data.message || "Signup failed. Please try again.");
       }
     } catch (error) {
       setErrorMessage("An error occurred. Please try again.");
@@ -74,38 +75,92 @@ const Signup = () => {
       >
         <h3 className="text-center fw-bold">Create Account</h3>
 
-        {errorMessage && <p className="text-danger text-center">{errorMessage}</p>} {/* Show error if exists */}
+        {errorMessage && (
+          <p className="text-danger text-center">{errorMessage}</p>
+        )}
 
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <label className="form-label fw-semibold">Full Name</label>
-            <input type="text" className="form-control" name="name" onChange={handleChange} required />
+            <input
+              type="text"
+              className="form-control"
+              name="name"
+              onChange={handleChange}
+              value={user.name}
+              required
+            />
           </div>
           <div className="mb-3">
             <label className="form-label fw-semibold">Email</label>
-            <input type="email" className="form-control" name="email" onChange={handleChange} required />
+            <input
+              type="email"
+              className="form-control"
+              name="email"
+              onChange={handleChange}
+              value={user.email}
+              required
+            />
           </div>
           <div className="mb-3">
             <label className="form-label fw-semibold">Phone Number</label>
-            <input type="tel" className="form-control" name="phone" onChange={handleChange} required />
+            <input
+              type="tel"
+              className="form-control"
+              name="phone"
+              onChange={handleChange}
+              value={user.phone}
+              required
+            />
           </div>
           <div className="mb-3">
             <label className="form-label fw-semibold">Date of Birth</label>
-            <input type="date" className="form-control" name="dob" onChange={handleChange} required />
+            <input
+              type="date"
+              className="form-control"
+              name="dob"
+              onChange={handleChange}
+              value={user.dob}
+              required
+            />
           </div>
           <div className="mb-3">
             <label className="form-label fw-semibold">Location</label>
-            <input type="text" className="form-control" name="location" onChange={handleChange} required />
+            <input
+              type="text"
+              className="form-control"
+              name="location"
+              onChange={handleChange}
+              value={user.location}
+              required
+            />
           </div>
           <div className="mb-3">
             <label className="form-label fw-semibold">Password</label>
-            <input type="password" className="form-control" name="password" onChange={handleChange} required />
+            <input
+              type="password"
+              className="form-control"
+              name="password"
+              onChange={handleChange}
+              value={user.password}
+              required
+            />
           </div>
           <div className="mb-3">
             <label className="form-label fw-semibold">Confirm Password</label>
-            <input type="password" className="form-control" name="confirmPassword" onChange={handleChange} required />
+            <input
+              type="password"
+              className="form-control"
+              name="confirmPassword"
+              onChange={handleChange}
+              value={user.confirmPassword}
+              required
+            />
           </div>
-          <button type="submit" className="btn btn-primary w-100 fw-bold shadow-sm">
+          <button
+            type="submit"
+            className="btn btn-primary w-100 fw-bold shadow-sm"
+          >
             Sign Up
           </button>
         </form>
