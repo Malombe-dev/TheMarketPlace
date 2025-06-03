@@ -9,6 +9,7 @@ import {
   Button,
   Form,
   Badge,
+  Image,
 } from "react-bootstrap";
 import { io } from "socket.io-client";
 
@@ -130,17 +131,23 @@ const MessagesPage = () => {
 
   const handleDelete = async (messageId) => {
     try {
-      await axios.delete(
+      const response = await axios.delete(
         `https://vmalombe.pythonanywhere.com/messages/delete/${messageId}`
       );
-      setConversationHistory((prev) =>
-        prev.filter((msg) => msg.id !== messageId)
-      );
+  
+      if (response.status === 200) {
+        alert(response.data.message || "Message deleted successfully");
+  
+        setConversationHistory((prev) =>
+          prev.filter((msg) => msg.id !== messageId)
+        );
+      }
     } catch (error) {
       console.error("Failed to delete message:", error);
       alert("Failed to delete message");
     }
   };
+  
 
   useEffect(() => {
     fetchThreads();
@@ -157,24 +164,37 @@ const MessagesPage = () => {
         threads.map((msg) => {
           const isSender = msg.sender_id === userId;
           const otherUserId = isSender ? msg.receiver_id : msg.sender_id;
-          const otherUserName = isSender
-            ? msg.receiver_name
-            : msg.sender_name;
-          const hasUnread =
-            msg.receiver_id === userId && msg.is_read === 0;
+          const otherUserName = isSender ? msg.receiver_name : msg.sender_name;
+          const otherUserPhoto = isSender
+            ? msg.receiver_photo
+              ? `https://vmalombe.pythonanywhere.com/${msg.receiver_photo}`
+              : "/images/default-avatar.png"
+            : msg.sender_photo
+            ? `https://vmalombe.pythonanywhere.com/${msg.sender_photo}`
+            : "/images/default-avatar.png";
+
+          const hasUnread = msg.receiver_id === userId && msg.is_read === 0;
 
           return (
-            <Card key={msg.id} className="mb-3 p-3">
-              <div>
-                <strong>Conversation with:</strong>{" "}
-                {otherUserName || `User ${otherUserId}`}{" "}
-                {hasUnread && <Badge bg="danger">New</Badge>}
-                <p className="mb-1">{msg.message_text}</p>
-                <small className="text-muted">
-                  {new Date(msg.created_at).toLocaleString()}
-                </small>
+            <Card key={msg.id} className="mb-3 p-3 d-flex flex-row align-items-center justify-content-between">
+              <div className="d-flex align-items-center">
+                <Image
+                  src={otherUserPhoto}
+                  roundedCircle
+                  width={50}
+                  height={50}
+                  className="me-3"
+                  style={{ objectFit: "cover" }}
+                />
+                <div>
+                  <div className="fw-bold">{otherUserName}</div>
+                  <div>{msg.message_text.slice(0, 50)}...</div>
+                  <small className="text-muted">
+                    {new Date(msg.created_at).toLocaleString()} {hasUnread && <Badge bg="danger">New</Badge>}
+                  </small>
+                </div>
               </div>
-              <div className="d-flex justify-content-end mt-2">
+              <div>
                 <Button
                   variant="primary"
                   size="sm"
@@ -207,43 +227,76 @@ const MessagesPage = () => {
                 {conversationHistory.length === 0 ? (
                   <p>No messages yet.</p>
                 ) : (
-                  conversationHistory.map((msg) => (
-                    <div
-                      key={msg.id}
-                      className={`p-2 rounded mb-2 ${
-                        msg.sender_id === userId
-                          ? "bg-light text-end"
-                          : "bg-secondary text-white"
-                      }`}
-                    >
-                      <div>
-                        <strong>{msg.sender_name}:</strong>
-                      </div>
-                      <div>{msg.message_text}</div>
-                      <small className="text-muted d-block">
-                        {new Date(msg.created_at).toLocaleString()}
-                      </small>
-                      {msg.sender_id === userId && (
-                        <Button
-                          variant="danger"
-                          size="sm"
-                          className="mt-1"
-                          onClick={() => handleDelete(msg.id)}
+                  conversationHistory.map((msg) => {
+                    const isSender = msg.sender_id === userId;
+                    const photoUrl = msg.sender_photo
+                      ? `https://vmalombe.pythonanywhere.com/${msg.sender_photo}`
+                      : "/images/default-avatar.png";
+
+                    return (
+                      <div
+                        key={msg.id}
+                        className={`d-flex mb-3 ${
+                          isSender ? "justify-content-end" : "justify-content-start"
+                        }`}
+                      >
+                        {!isSender && (
+                          <Image
+                            src={photoUrl}
+                            roundedCircle
+                            width={40}
+                            height={40}
+                            className="me-2"
+                            style={{ objectFit: "cover" }}
+                          />
+                        )}
+                        <div
+                          style={{
+                            maxWidth: "70%",
+                            padding: "10px 15px",
+                            borderRadius: "20px",
+                            backgroundColor: isSender ? "#0d6efd" : "#e5e5ea",
+                            color: isSender ? "white" : "black",
+                          }}
                         >
-                          Delete
-                        </Button>
-                      )}
-                    </div>
-                  ))
+                          <div style={{ fontWeight: "600", marginBottom: 5 }}>
+                            {msg.sender_name}
+                          </div>
+                          <div>{msg.message_text}</div>
+                          <small className="text-muted d-block mt-1" style={{ fontSize: "0.75rem" }}>
+                            {new Date(msg.created_at).toLocaleString()}
+                          </small>
+                          {isSender && (
+                            <Button
+                              variant="danger"
+                              size="sm"
+                              className="mt-2"
+                              onClick={() => handleDelete(msg.id)}
+                            >
+                              Delete
+                            </Button>
+                          )}
+                        </div>
+                        {isSender && (
+                          <Image
+                            src={photoUrl}
+                            roundedCircle
+                            width={40}
+                            height={40}
+                            className="ms-2"
+                            style={{ objectFit: "cover" }}
+                          />
+                        )}
+                      </div>
+                    );
+                  })
                 )}
               </div>
-
               {successMessage && (
                 <div className="alert alert-success mt-3 py-2 px-3">
                   {successMessage}
                 </div>
               )}
-
               <Form.Group controlId="replyText" className="mt-3">
                 <Form.Label>Your Reply</Form.Label>
                 <Form.Control
@@ -264,11 +317,7 @@ const MessagesPage = () => {
           <Button variant="primary" onClick={sendReply} disabled={sending}>
             {sending ? (
               <>
-                <Spinner
-                  animation="border"
-                  size="sm"
-                  className="me-2"
-                />
+                <Spinner animation="border" size="sm" className="me-2" />
                 Sending...
               </>
             ) : (

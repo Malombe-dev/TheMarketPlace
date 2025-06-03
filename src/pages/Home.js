@@ -34,9 +34,9 @@ const Home = () => {
 
   return (
     <div 
-      className="d-flex flex-column align-items-center text-center"
+      className="d-flex flex-column align-items-center text-center bg-primary"
       style={{
-        background: "linear-gradient(to right, #4A90E2, #50BFA5)",
+        
         color: "#fff",
         minHeight: "100vh",
         padding: "2rem",

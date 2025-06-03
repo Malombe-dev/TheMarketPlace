@@ -31,18 +31,28 @@ const Navbar = () => {
   }, [isAuthenticated, userId]);
 
   return (
-    <nav className="navbar bg-primary px-2 py-2">
+    <nav className="navbar  px-2 py-2"
+    style={{
+      background: "linear-gradient(to right, #4A90E2, #50BFA5)",
+      color: "#fff",
+      minHeight: "10vh",
+      padding: "2rem",
+    }}
+  >
+    
+    
   <div className="container-fluid flex-column align-items-start">
     {/* Brand Row */}
-    <div className="d-flex justify-content-between align-items-center w-100 mb-2">
+    <div className="d-flex justify-content-between align-items-center w-100 ">
       <Link className="navbar-brand d-flex align-items-center text-white fw-bold fs-4" to="/">
-        <img
+        {/* <img
           src="/images/logo.jpg"
           alt="Logo"
           width="30"
+          
           height="30"
           className="me-2"
-        />
+        /> */}
         Marketplace
       </Link>
     </div>

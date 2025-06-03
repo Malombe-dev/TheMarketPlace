@@ -61,8 +61,8 @@ const Signup = () => {
 
   return (
     <div
-      className="d-flex justify-content-center align-items-center vh-100"
-      style={{ background: "linear-gradient(to right, #4A90E2, #50BFA5)" }}
+      className="d-flex justify-content-center align-items-center vh-100 bg-primary"
+      // style={{ background: "linear-gradient(to right, #4A90E2, #50BFA5)" }}
     >
       <div
         className="card shadow-lg p-4 rounded"

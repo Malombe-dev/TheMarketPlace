@@ -41,7 +41,7 @@ const Login = () => {
   };
 
   return (
-    <div className="d-flex justify-content-center align-items-center vh-100" style={{ background: "linear-gradient(to right, #4A90E2, #50BFA5)" }}>
+    <div className="d-flex justify-content-center align-items-center vh-100 bg-primary" >
       <div className="card shadow-lg p-4 rounded" style={{ maxWidth: "400px", width: "100%" }}>
         <h2 className="text-center fw-bold mb-3">Login</h2>
         {error && <p className="text-danger text-center">{error}</p>}
