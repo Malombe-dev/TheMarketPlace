@@ -117,26 +117,33 @@ const ProductDetails = () => {
           <p><strong>Age of Item:</strong> {product.age} Years</p>
 
           <hr />
+         
+          {/* Seller Information */}
           <h5>Seller Information</h5>
           {isAuthenticated ? (
-            <div className="d-flex align-items-center mb-2">
-              <img
-                src={product.profile_photo}
-                alt={product.posted_by}
-                className="rounded-circle me-2"
-                style={{ width: "50px", height: "50px", objectFit: "cover" }}
-              />
-              <div>
-                <p className="m-0"><strong>{product.posted_by}</strong></p>
-                <p className="m-0">📞 {product.contact_phone}</p>
-                <p className="m-0">✉️ {product.contact_email}</p>
+            product.hide_contact ? (
+              <p className="text-muted">Seller has hidden contact information.</p>
+            ) : (
+              <div className="d-flex align-items-center mb-2">
+                <img
+                  src={product.profile_photo}
+                  alt={product.posted_by}
+                  className="rounded-circle me-2"
+                  style={{ width: "50px", height: "50px", objectFit: "cover" }}
+                />
+                <div>
+                  <p className="m-0"><strong>{product.posted_by}</strong></p>
+                  <p className="m-0">📞 {product.contact_phone}</p>
+                  <p className="m-0">✉️ {product.contact_email}</p>
+                </div>
               </div>
-            </div>
+            )
           ) : (
             <p className="text-muted">
               Please <a href="/login">log in</a> to see seller information.
             </p>
           )}
+          <hr />
 
           {/* Message Seller Button */}
           {isAuthenticated && (

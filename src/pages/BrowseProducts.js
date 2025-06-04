@@ -3,6 +3,9 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Carousel, Card, Button, Spinner, Form, InputGroup } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
+import useInactivityLogout from "../Hooks/useInactivityLogout";
+
+
 
 const BrowseProducts = () => {
   const [products, setProducts] = useState([]);
@@ -12,6 +15,9 @@ const BrowseProducts = () => {
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
   const navigate = useNavigate();
+  useInactivityLogout(); // 👈 This activates the 5-minute inactivity timer
+ 
+  
 
   // Fetch products
   useEffect(() => {
