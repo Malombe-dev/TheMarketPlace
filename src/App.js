@@ -13,6 +13,8 @@ import Signup from "./pages/Signup";
 import { AuthProvider } from "./context/AuthContext";
 import MessageThread from "./components/MessagesPage";
 
+
+
 import PrivateRoute from "./context/PrivateRoute";
 // inside your main index.js or App.js (before any API requests)
 
